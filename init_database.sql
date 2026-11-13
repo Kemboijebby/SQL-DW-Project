@@ -1,27 +1,23 @@
-USE master;
-GO
+-- Safe, repeatable development database initialization.
+-- This script does not drop or overwrite an existing DataWarehouse database.
 
--- Drop and recreate the 'DataWarehouse' database
-IF EXISTS (SELECT 1 FROM sys.databases WHERE name = 'DataWarehouse')
+IF DB_ID(N'DataWarehouse') IS NULL
 BEGIN
-    ALTER DATABASE DataWarehouse SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
-    DROP DATABASE DataWarehouse;
+    CREATE DATABASE DataWarehouse;
 END;
-GO
-
--- Create the 'DataWarehouse' database
-CREATE DATABASE DataWarehouse;
 GO
 
 USE DataWarehouse;
 GO
 
--- Create Schemas
-CREATE SCHEMA bronze;
+IF NOT EXISTS (SELECT 1 FROM sys.schemas WHERE name = N'bronze')
+    EXEC(N'CREATE SCHEMA bronze');
 GO
 
-CREATE SCHEMA silver;
+IF NOT EXISTS (SELECT 1 FROM sys.schemas WHERE name = N'silver')
+    EXEC(N'CREATE SCHEMA silver');
 GO
 
-CREATE SCHEMA gold;
+IF NOT EXISTS (SELECT 1 FROM sys.schemas WHERE name = N'gold')
+    EXEC(N'CREATE SCHEMA gold');
 GO
