@@ -31,7 +31,7 @@ The warehouse uses three schemas: `bronze`, `silver`, and `gold`.
 
 ### 1. Database and schemas
 - `init_database.sql` creates the `DataWarehouse` database and the three schemas.
-- **Warning:** the initialization script drops and recreates an existing database named `DataWarehouse`. Run it only in a disposable development environment after confirming that no data needs to be retained.
+- The initialization script is non-destructive: it creates the database and schemas only when they do not already exist.
 
 ### 2. Bronze layer
 - Defines six raw landing tables for CRM and ERP source data.
@@ -82,7 +82,7 @@ The resulting model follows a fact-and-dimension structure suitable for BI tools
 1. Review `init_database.sql`. It is destructive to an existing `DataWarehouse` database.
 2. Run the database initialization script in a development instance.
 3. Run the DDL scripts in `scripts/bronze/` and `scripts/silver/` to create the landing and cleaned tables.
-4. Update the six file paths in `scripts/bronze/proc_load_bronze.sql` to match the location of your local CSV files. The current paths are machine-specific Windows paths.
+4. In `scripts/bronze/proc_load_bronze.sql`, set `@DataDirectory` to the absolute folder path containing the six CSV files in this repository's `datasets/` directory. The SQL Server service account must have read access to that folder.
 5. Execute the Bronze load procedure.
 6. Execute `silver.load_silver` from `scripts/silver/data_transformation.sql`.
 7. Create the Gold views using `scripts/gold/ddl_gold.sql`.
@@ -95,9 +95,9 @@ The repository contains validation queries, but their presence does not by itsel
 
 ## Current limitations and next improvements
 
-- Replace machine-specific file paths with a configurable loading approach.
+- Configure `@DataDirectory` for the SQL Server host before loading.
 - Add repeatable orchestration and environment-specific configuration.
-- Improve failure handling so load errors are surfaced to the caller and execution can be monitored.
+- The Bronze loader now rethrows failures after logging the error; add execution logging and monitoring around the procedure.
 - Add documented execution evidence, sample query outputs, and a warehouse diagram.
 - Add automated checks for row counts, referential integrity, and incremental-load behavior.
 
